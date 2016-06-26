@@ -1,0 +1,23 @@
+{% extends "layouts/base.html" %}
+
+{%- block main %}
+        <div class="jumbotron">
+            <h1>Nest Thermostat Control</h1>
+            <p class="lead">The thermostat control module will allow the user to record and view previous data from the Nest Thermostat installed.</p>
+            <p><a class="btn btn-lg btn-success btn-raised" href={{url_for('public.signup')}} role="button">Sign up today</a></p>
+        </div>
+        <!--<div class="row marketing">
+            <div class="col-lg-6">
+                <h4>Dates</h4>
+                <p>The contest will run from November 20 to December 8.</p>
+                <h4>Prizes</h4>
+                <p>Over $3000 in prizes will be given away. There will be four winners in each category.</p>
+            </div>
+            <div class="col-lg-6">
+                <h4>Participation</h4>
+                <p>The contest is open to all NGES employees.</p>
+                <h4>Problems</h4>
+                <p>Contestants competing to solve problems in the following categories: Signal and image processing, Systems and Software Integration, Software Testing, Cryptography and Security, Parallel computing.</p>
+            </div>
+        </div>-->
+{%- endblock %}

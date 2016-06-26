@@ -1,0 +1,73 @@
+{% import "layouts/macros.html" as macros %}
+
+{% if device_entries and device_entries.total > 0 -%}
+{{ output_div|safe }}
+{{ script|safe }}
+<table class="table table-bordered table-striped table-hover">
+
+
+    <ul class="pager">
+
+        {% if device_entries.has_prev -%}
+        <li class="previous">
+            <button id="entry-left-click" onclick="clickFunction({{ device_entries.prev_num }})">
+                <span aria-hidden="true">&larr;</span><a href="#">Newer Entries</a>
+            </button>
+        </li>
+        {%- else -%}
+        <li class="previous disabled">Newer Entries</li>
+        {%- endif %}
+        {% if device_entries.has_next -%}
+        <li class="next">
+            <button id="entry-right-click" onclick="clickFunction({{ device_entries.next_num }})">
+                <a href="#">Older Entries</a><span aria-hidden="true">&rarr;</span>
+            </button>
+        </li>
+        {%- else -%}
+        <li class="next disabled">Older Entries</li>
+        {%- endif %}
+    </ul>
+
+
+
+    <thead>
+        <tr>
+            <th>Device Name</th>
+            <th>Temperature Scale</th>
+            <th>Target Temperature</th>
+            <th>Ambient Temperature</th>
+            <th>HVAC State</th>
+            <th>Humidity</th>
+            <th>Leaf</th>
+        </tr>
+    </thead>
+    <tbody class="list">
+
+        {% for entry in device_entries.items -%}
+        <tr data-entry-id={{entry.entry_id}}>
+            <td >{{ entry.name }}</td>
+            <td >{{ entry.temperature_scale }}</td>
+            {% if entry.temperature_scale == "C" -%}
+            <td >{{ entry.target_temperature_c }} </td>
+            <td >{{ entry.ambient_temperature_c }} </td>
+            {%- else -%}
+            <td >{{ entry.target_temperature_f }} </td>
+            <td >{{ entry.ambient_temperature_f }} </td>
+            {%- endif %}
+            <td >{{ entry.hvac_state }}</td>
+            <td >{{ entry.humidity }}</td>
+            {% if entry.has_leaf -%}
+            <td ><img src="static/img/energy-leaf.png" height="30" width="30"></td>
+            {%- else -%}
+            <td >-</td>
+            {%- endif %}
+        </tr>
+        {%- endfor %}
+    </tbody>
+</table>
+
+<small class="text-muted">Click a row for more info</small>
+{%- else -%}
+<h3 class="text-center">There are no entries for this device</h3>
+{%- endif %}
+

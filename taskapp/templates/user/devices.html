@@ -1,0 +1,71 @@
+{% extends "layouts/base.html" %}
+{% import "layouts/macros.html" as macros %}
+
+{% block styles -%}
+    {{super()}}
+    <link rel="stylesheet" href={{url_for('static', filename='css/prism.css')}}>
+{%- endblock %}
+
+{% block navbar %}
+    <!-- Entry text modal -->
+    <div id="entry-text-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="entry-text-modal-label">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 id="entry-text-modal-label" class="modal-title">Entry Result</h4>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{%- block main %}
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            {{ macros.show_flash() }}
+            <ul class="nav nav-sidebar">
+                <!--<div class="btn-group btn-group-justified"> -->
+                <li id="thermostat-btn">
+                    <a href="#">Get Thermostat Data</a>
+                </li>
+                <li id="entries-btn">
+                    <a href="#">Your Entries</a>
+                </li>
+                <!--</div>-->
+            </ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+            <h1 class="page-header">Thermostat Data</h1>
+            <select id="device-select" class="form-control">
+                {% for device in devices -%}
+                <option value="{{ device.id }}"
+                {%- if request.args.get('id')|int == device.id|int %} selected="selected"{%- endif -%}
+                >{{ device.name }}</option>
+                {% endfor %}
+            </select>
+
+
+            <div id="graph-area"></div>
+            <div id="display-area"></div>
+        </div>
+    </div>
+{% endblock -%}
+
+{% block scripts %}
+    {{super()}}
+    <script src={{url_for('static', filename='js/app.js')}}></script>
+    <script src={{url_for('static', filename='js/prism.js')}}></script>
+    <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/pagination.js') }}"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=AM_HTMLorMML"></script>
+    <link
+        href="http://cdn.pydata.org/bokeh/release/bokeh-0.11.0.min.css"
+        rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-0.11.0.min.js"></script>
+{% endblock %}

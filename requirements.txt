@@ -1,0 +1,7 @@
+flask
+werkzeug
+flask-login
+flask-wtf
+sqlalchemy
+itsdangerous
+wtforms
