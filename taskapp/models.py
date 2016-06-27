@@ -78,56 +78,53 @@ class User(db.Model, UserMixin):
 
 class Simulation(db.Model):
     """
-
-
+    Database for an individual run of the simulation
     """
     simulation_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    high_level_script_name = db.Column(db.Text(), nullable=False)
-    simulation_name = db.Column(db.Text(), nullable=False)
-    high_level_script_version = db.Column(db.Integer, nullable=False)
-    simulation_version = db.Column(db.Integer, nullable=False)
+
     random_seeding = db.Column(db.Integer, nullable=False)
-    input_settings = db.Column(db.Blob, nullable=True)
+    input_settings_filename = db.Column(db.Blob, nullable=True)
     output_filename = db.Column(db.Blob, nullable=True)
     start_time = db.Column(db.DateTime, nullable=True)
     end_time = db.Column(db.DateTime, nullable=True)
     has_error = db.Column(db.Boolean, nullable=False)
     node_id = db.Column(db.Integer, nullable=True)
-    model_id = db.Column(db.Integer, db.ForeignKey('modelrun.run_id'), nullable=False)
+    model_id = db.Column(db.Integer, db.ForeignKey('submission.sub_id'), nullable=False)
 
-    def __init__(self, user_id, run_id, hl_name, sim_name, hl_ver, sim_ver):
+    def __init__(self, user_id, run_id):
         self.user_id = user_id
         self.model_id = run_id
-        self.high_level_script_name = hl_name
-        self.simulation_name = sim_name
-        self.high_level_script_version = hl_ver
-        self.simulation_version = sim_ver
 
 
-
-
-
-class ModelRun(db.Model):
+class Submission(db.Model):
     """
-
-
+    Database for a submission of a set of simulation runs
     """
-    model_id = db.Column(db.Integer, primary_key=True)
+    sub_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     submission_time = db.Column(db.DateTime, nullable=False)
+    high_level_script_name = db.Column(db.Text(), nullable=False)
+    simulation_name = db.Column(db.Text(), nullable=False)
+    high_level_script_version = db.Column(db.Integer, nullable=False)
+    simulation_version = db.Column(db.Integer, nullable=False)
     start_time = db.Column(db.DateTime, nullable=True)
     completion_time = db.Column(db.DateTime, nullable=True)
     has_error = db.Column(db.Boolean)
+    user = db.relationship('User',foreign_keys=[user_id])
 
     _states = ('Submitted',
                'Running',
                'Completed',
                'Error')
 
-    def __init__(self, user_id):
+    def __init__(self, user_id, hl_name, sim_name, hl_ver, sim_ver):
         self.user_id = user_id
         self.submission_time = datetime.now()
+        self.high_level_script_name = hl_name
+        self.simulation_name = sim_name
+        self.high_level_script_version = hl_ver
+        self.simulation_version = sim_ver
 
     def __repr__(self):
         return "<Model Run # '%s'>" % self.run_id

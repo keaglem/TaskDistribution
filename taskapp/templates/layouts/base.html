@@ -28,20 +28,11 @@
                 {%- else -%}
                     <a href={{url_for('public.index')}} >
                 {%- endif -%}
-                Nest Thermostat</a>
+                Simulation Management</a>
             </div>
             <div id="navbar" class="navbar-collapse collapse">
                 <ul class="nav navbar-nav navbar-right">
                     {% if current_user.is_authenticated -%}
-                        {% if current_user.is_admin -%}
-                            <li title="Admin interface"><a href={{'/admin'}}>Admin Interface</a></li>
-                        {%- endif %}
-                        {% if current_user.is_nest_authenticated -%}
-                            <li title="View devices"><a href={{url_for('user.devices')}}>View devices</a></li>
-                            <li title="Nest Logout"><a href={{url_for('nest.logout')}}>Nest Logout</a></li>
-                        {%- else -%}
-                            <li title="Nest Login"><a href={{url_for('nest.login')}}>Nest Login</a></li>
-                        {%- endif %}
                         <li class="active" title="Edit profile"><a href={{url_for('user.profile')}}><span class="glyphicon glyphicon-user"></span> {{ current_user.name }}</a></li>
                         <li title="Log out"><a href={{url_for('public.logout')}}><span class="glyphicon glyphicon-log-out"></span></a></li>
                     {%- else -%}

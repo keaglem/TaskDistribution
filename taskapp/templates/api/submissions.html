@@ -1,0 +1,59 @@
+{% import "layouts/macros.html" as macros %}
+
+{% if submissions and submissions.total > 0 -%}
+{{ output_div|safe }}
+{{ script|safe }}
+<table class="table table-bordered table-striped table-hover">
+    <ul class="pager">
+        {% if submissions.has_prev -%}
+        <li class="previous">
+            <button id="submission-left-click" onclick="clickFunction({{ submissions.prev_num }})">
+                <span aria-hidden="true">&larr;</span><a href="#">Newer Submissions</a>
+            </button>
+        </li>
+        {%- else -%}
+        <li class="previous disabled">Newer Submissions</li>
+        {%- endif %}
+        {% if submissions.has_next -%}
+        <li class="next">
+            <button id="submission-right-click" onclick="clickFunction({{ submissions.next_num }})">
+                <a href="#">Older Submissions</a><span aria-hidden="true">&rarr;</span>
+            </button>
+        </li>
+        {%- else -%}
+        <li class="next disabled">Older Submissions</li>
+        {%- endif %}
+    </ul>
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Script Name</th>
+            <th>Script Version</th>
+            <th>Simulation Version</th>
+            <th>Submission Time</th>
+            <th>Start Time</th>
+            <th>Completion Time</th>
+            <th>Error</th>
+        </tr>
+    </thead>
+    <tbody class="list">
+        {% for sub in submissions.items -%}
+        <tr data-sub-id={{sub.model_id}}>
+            <td >{{ sub.user.name }}</td>
+            <td >{{ sub.high_level_script_name }}</td>
+            <td >{{ sub.high_level_script_version }} </td>
+            <td >{{ sub.simulation_version }} </td>
+            <td >{{ sub.submission_time }}</td>
+            <td >{{ sub.start_time }}</td>
+            <td >{{ sub.completion_time }}</td>
+            <td >{{ sub.has_error }}</td>
+        </tr>
+        {%- endfor %}
+    </tbody>
+</table>
+
+<small class="text-muted">Click a row for more info</small>
+{%- else -%}
+<h3 class="text-center">There are no entries for this device</h3>
+{%- endif %}
+
