@@ -8,10 +8,12 @@ from sqlalchemy import or_
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 
-from .extensions import db
+from .extensions import Base
+import sqlalchemy as db
 
 
-class User(db.Model, UserMixin):
+class User(Base, UserMixin):
+    __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     is_admin = db.Column(db.Boolean(), default=False)
     name = db.Column(db.String(80), unique=True, nullable=False)
@@ -76,16 +78,17 @@ class User(db.Model, UserMixin):
         return cls.query.get(int(id))
 
 
-class Simulation(db.Model):
+class Simulation(Base):
     """
     Database for an individual run of the simulation
     """
+    __tablename__ = 'simulation'
     simulation_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     random_seeding = db.Column(db.Integer, nullable=False)
-    input_settings_filename = db.Column(db.Blob, nullable=True)
-    output_filename = db.Column(db.Blob, nullable=True)
+    input_settings_filename = db.Column(db.Text(), nullable=True)
+    output_filename = db.Column(db.Text(), nullable=True)
     start_time = db.Column(db.DateTime, nullable=True)
     end_time = db.Column(db.DateTime, nullable=True)
     has_error = db.Column(db.Boolean, nullable=False)
@@ -97,10 +100,11 @@ class Simulation(db.Model):
         self.model_id = run_id
 
 
-class Submission(db.Model):
+class Submission(Base):
     """
     Database for a submission of a set of simulation runs
     """
+    __tablename__ = 'submission'
     sub_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     submission_time = db.Column(db.DateTime, nullable=False)
@@ -111,7 +115,7 @@ class Submission(db.Model):
     start_time = db.Column(db.DateTime, nullable=True)
     completion_time = db.Column(db.DateTime, nullable=True)
     has_error = db.Column(db.Boolean)
-    user = db.relationship('User',foreign_keys=[user_id])
+    user = db.orm.relationship('User',foreign_keys=[user_id])
 
     _states = ('Submitted',
                'Running',
@@ -127,13 +131,17 @@ class Submission(db.Model):
         self.simulation_version = sim_ver
 
     def __repr__(self):
-        return "<Model Run # '%s'>" % self.run_id
+        return "<Model Run # '%s'>" % self.sub_id
 
     def __str__(self):
-        return self.run_id
+        return self.sub_id
 
     def set_complete(self):
         self.completion_time = datetime.now()
+
+    def get_name(self):
+        return self.__repr__()
+
 
     def get_state(self):
         if self.has_error:
@@ -145,63 +153,4 @@ class Submission(db.Model):
             return self._states[1]
         elif self.start_time and self.completion_time:
             return self._states[2]
-
-
-class Entries(db.Model):
-    entry_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'),nullable=False)
-    device_id = db.Column(db.Text(),  nullable=False)
-    device_num = db.Column(db.Integer, db.ForeignKey('devices.id'),nullable=False)
-    time_stamp = db.Column(db.DateTime, nullable=False)
-
-    def __repr__(self):
-        return "<Device: '%s'>" % self.name
-
-    def __str__(self):
-        return self.name
-
-    def __init__(self, user_id, device_num):
-        self.user_id = user_id
-        self.device_num = device_num
-        self.time_stamp = datetime.now()
-
-    def new_entry(self, entry, time_gap=1800):
-        if not isinstance(entry, Entries):
-            return False
-
-        states_to_compare = ['ambient_temperature_f',
-                             'hvac_state',
-                             'humidity',
-                             'target_temperature_f']
-
-        for states in states_to_compare:
-            if getattr(self, states) != getattr(entry, states):
-                return True
-
-        # Only update if it has been long enough since last update
-        if (self.time_stamp - entry.time_stamp) > timedelta(seconds=time_gap):
-            return True
-
-        return False
-
-
-class Devices(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'),nullable=False)
-    device_id = db.Column(db.Text(), nullable=False)
-    name = db.Column(db.Text(), nullable=False)
-
-    user = db.relationship('User',foreign_keys=[user_id])
-
-    def __repr__(self):
-        return "<Device: '%s', Id: '%s'>" % (self.name, self.device_id)
-
-    def __str__(self):
-        return self.name
-
-    def __init__(self, device_id, user_id, name):
-        self.device_id = device_id
-        self.user_id = user_id
-        self.name = name
-
 

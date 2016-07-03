@@ -31,11 +31,11 @@
             {{ macros.show_flash() }}
             <ul class="nav nav-sidebar">
                 <!--<div class="btn-group btn-group-justified"> -->
-                <li id="thermostat-btn">
-                    <a href="#">Get Thermostat Data</a>
+                <li id="submit-btn">
+                    <a href="#">Submit Script</a>
                 </li>
-                <li id="entries-btn">
-                    <a href="#">Your Entries</a>
+                <li id="view-btn">
+                    <a href="#">Your Scripts</a>
                 </li>
                 <!--</div>-->
             </ul>
@@ -43,10 +43,10 @@
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
             <h1 class="page-header">Thermostat Data</h1>
             <select id="device-select" class="form-control">
-                {% for device in devices -%}
-                <option value="{{ device.id }}"
-                {%- if request.args.get('id')|int == device.id|int %} selected="selected"{%- endif -%}
-                >{{ device.name }}</option>
+                {% for sub in submissions -%}
+                <option value="{{ sub.sub_id }}"
+                {%- if request.args.get('id')|int == sub.sub_id|int %} selected="selected"{%- endif -%}
+                >{{ sub.get_name() }}</option>
                 {% endfor %}
             </select>
 
@@ -61,11 +61,6 @@
     {{super()}}
     <script src={{url_for('static', filename='js/app.js')}}></script>
     <script src={{url_for('static', filename='js/prism.js')}}></script>
-    <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/pagination.js') }}"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=AM_HTMLorMML"></script>
-    <link
-        href="http://cdn.pydata.org/bokeh/release/bokeh-0.11.0.min.css"
-        rel="stylesheet" type="text/css">
-    <script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-0.11.0.min.js"></script>
 {% endblock %}

@@ -5,8 +5,7 @@ from flask import Flask, url_for
 
 from . import extensions
 from . import settings
-
-from . import api, public, user, nest
+from . import api, user, public
 
 
 def create_app(config=settings.ProdConfig):
@@ -18,14 +17,10 @@ def create_app(config=settings.ProdConfig):
 
 
 def register_extentions(app):
-    extensions.db.init_app(app)
     extensions.login_manager.init_app(app)
-    extensions.mail.init_app(app)
-    extensions.migrate.init_app(app, extensions.db)
 
 
 def register_blueprints(app):
     app.register_blueprint(api.views.blueprint)
     app.register_blueprint(public.views.blueprint)
     app.register_blueprint(user.views.blueprint)
-    app.register_blueprint(nest.views.blueprint)
