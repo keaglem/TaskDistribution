@@ -27,7 +27,7 @@
 
 {%- block main %}
     <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
+        <div class="col-md-offset-0 sidebar">
             {{ macros.show_flash() }}
             <ul class="nav nav-sidebar">
                 <!--<div class="btn-group btn-group-justified"> -->
@@ -40,18 +40,17 @@
                 <!--</div>-->
             </ul>
         </div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-            <h1 class="page-header">Thermostat Data</h1>
-            <select id="device-select" class="form-control">
+
+        <div class="col-md-offset-1 main">
+            <h1 class="page-header">Submission Data</h1>
+            <!--<select id="device-select" class="form-control">
                 {% for sub in submissions -%}
                 <option value="{{ sub.sub_id }}"
                 {%- if request.args.get('id')|int == sub.sub_id|int %} selected="selected"{%- endif -%}
                 >{{ sub.get_name() }}</option>
                 {% endfor %}
-            </select>
+            </select>-->
 
-
-            <div id="graph-area"></div>
             <div id="display-area"></div>
         </div>
     </div>

@@ -5,3 +5,4 @@ flask-wtf
 sqlalchemy
 itsdangerous
 wtforms
+click

@@ -93,11 +93,15 @@ class Simulation(Base):
     end_time = db.Column(db.DateTime, nullable=True)
     has_error = db.Column(db.Boolean, nullable=False)
     node_id = db.Column(db.Integer, nullable=True)
-    model_id = db.Column(db.Integer, db.ForeignKey('submission.sub_id'), nullable=False)
+    sub_id = db.Column(db.Integer, db.ForeignKey('submission.sub_id'), nullable=False)
+    has_started = db.Column(db.Integer, nullable=False)
+    is_complete = db.Column(db.Boolean, nullable=False)
+    submission = db.orm.relationship('Submission', foreign_keys=[sub_id])
 
-    def __init__(self, user_id, run_id):
+    def __init__(self, user_id, sub_id):
         self.user_id = user_id
-        self.model_id = run_id
+        self.sub_id = sub_id
+        self.has_started = False
 
 
 class Submission(Base):

@@ -2,14 +2,9 @@ var s,
 App = {
     settings: {
         displayArea: $('#display-area'),
-        deviceSelect: $('#device-select'),
-        thermostatButton: $('#thermostat-btn'),
-        entriesButton: $('#entries-btn'),
-        entryTextModal: $('#entry-text-modal'),
-        entryTextModalBody: $('#entry-text-modal .modal-body'),
-        nestTextModal: $('#nest-text-modal'),
-        nestTextModalBody: $('#nest-text-modal .modal-body'),
-        lastClicked: $('#entries-btn'),
+        viewButton: $('#view-btn'),
+        submitButton: $('#submit-btn'),
+        lastClicked: $('#view-btn'),
     },
 
     init: function() {
@@ -19,9 +14,10 @@ App = {
     },
 
     bindUIActions: function() {
-        s.thermostatButton.click(App.handleButtonClick(App.showThermostat));
-        s.entriesButton.click(App.handleButtonClick(App.showEntries));
-        s.deviceSelect.change(App.updateDisplay);
+        s.viewButton.click(App.handleButtonClick(App.showSubmissions));
+        s.submitButton.click(App.handleButtonClick(App.showSubmit));
+        // TODO: add this functionality back for cluster display
+        //s.deviceSelect.change(App.updateDisplay);
     },
 
     getValidURI: function(base, id) {
@@ -73,7 +69,9 @@ App = {
             s.entryTextModal.modal('show');
         });
     },
-
+    showSubmissions: function(e) {
+        s.displayArea.load('/api/submissions');
+    },
     showThermostat: function(e) {
         s.displayArea.load(App.getAddEntryURI(App.getActiveDeviceId()));
     },
