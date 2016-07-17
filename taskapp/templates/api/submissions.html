@@ -38,7 +38,7 @@
     </thead>
     <tbody class="list">
         {% for sub in submissions -%}
-        <tr data-sub-id={{sub.model_id}}>
+        <tr data-sub-id={{sub.sub_id}}>
             <td >{{ sub.user.name }}</td>
             <td >{{ sub.high_level_script_name }}</td>
             <td >{{ sub.high_level_script_version }} </td>

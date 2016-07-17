@@ -40,7 +40,7 @@ def simulations(sim_num=None, page_num=1):
         sim = sim1.filter(Simulation.simulation_id == sim_num).order_by(Simulation.simulation_id.desc())
         #sim = sim.paginate(page_num, current_app.config['MAX_ENTRIES_PER_PAGE'], False)
     else:
-        sim = Simulation.query.all()
+        sim = Simulation.query.order_by(Simulation.simulation_id.desc())
 
     simulations = sim.filter(Simulation.simulation_id == sim_num).order_by(Simulation.simulation_id.asc()).all()
 

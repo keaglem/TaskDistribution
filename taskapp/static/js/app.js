@@ -3,6 +3,7 @@ App = {
     settings: {
         displayArea: $('#display-area'),
         viewButton: $('#view-btn'),
+        simButton: $('#sim-btn'),
         submitButton: $('#submit-btn'),
         lastClicked: $('#view-btn'),
     },
@@ -16,6 +17,7 @@ App = {
     bindUIActions: function() {
         s.viewButton.click(App.handleButtonClick(App.showSubmissions));
         s.submitButton.click(App.handleButtonClick(App.showSubmit));
+        s.simButton.click(App.handleButtonClick(App.showSimulations));
         // TODO: add this functionality back for cluster display
         //s.deviceSelect.change(App.updateDisplay);
     },
@@ -71,6 +73,9 @@ App = {
     },
     showSubmit: function(e) {
         s.displayArea.load('/api/upload')
+    },
+    showSimulations: function(e) {
+        s.displayArea.load('/api/simulations')
     },
     showSubmissions: function(e) {
         s.displayArea.load('/api/submissions');
