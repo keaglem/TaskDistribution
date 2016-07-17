@@ -1,19 +1,31 @@
-from flask import Blueprint, render_template, current_app, jsonify, request, abort
+from flask import Blueprint, render_template, url_for, flash, \
+    current_app, jsonify, request, abort, redirect
 from flask.ext.login import current_user, login_required
 from . import forms
-from taskapp.models import Submission, Simulation
+from taskapp.models import Submission, Simulation, User
 from taskapp.extensions import db_session
+import numpy
+import datetime
 
 
 blueprint = Blueprint('api', __name__, url_prefix='/api', static_folder='../static')
 
 
-@blueprint.route('/upload')
-@blueprint.route('/upload/<problem_id>')
+@blueprint.route('/upload', methods=['GET', 'POST'])
 @login_required
-def api_upload(problem_id=None):
+def upload():
     """Create an embeddable form that will redirect to '/upload'"""
-    form = forms.make_upload_form(problem_id)
+    form = forms.UploadForm()
+    if form.validate_on_submit():
+        new_sub = Submission(current_user.id,
+                             form.script_name.data,
+                             form.simulation_name.data,
+                             form.script_version.data,
+                             form.simulation_version.data)
+        db_session.add(new_sub)
+        db_session.commit()
+        #flash('Submission id {} added.'.format(new_sub.sub_id))
+        return redirect(url_for('user.submissions'))
     return render_template('api/upload.html', form=form)
 
 
@@ -26,7 +38,7 @@ def simulations(sim_num=None, page_num=1):
     sim1 = Simulation.query.filter(Simulation.user_id == current_user.id).order_by(Simulation.simulation_id.desc())
     if sim_num is not None:
         sim = sim1.filter(Simulation.simulation_id == sim_num).order_by(Simulation.simulation_id.desc())
-        sim = sim.paginate(page_num, current_app.config['MAX_ENTRIES_PER_PAGE'], False)
+        #sim = sim.paginate(page_num, current_app.config['MAX_ENTRIES_PER_PAGE'], False)
     else:
         sim = Simulation.query.all()
 
@@ -44,9 +56,9 @@ def submissions(sub_num=None, page_num=1):
     sub1 = Submission.query.filter(Submission.user_id == current_user.id).order_by(Submission.sub_id.desc())
     if sub_num is not None:
         sub = sub1.filter(Submission.sub_id == sub_num).order_by(Submission.sub_id.desc())
-        sub = sub.paginate(page_num, current_app.config['MAX_ENTRIES_PER_PAGE'], False)
+        #sub = sub.paginate(page_num, current_app.config['MAX_ENTRIES_PER_PAGE'], False)
     else:
-        sub = Submission.query.all()
+        sub = Submission.query.order_by(Submission.sub_id.desc())
 
     all_submissions = sub1.filter(Submission.sub_id == sub_num).order_by(Submission.submission_time.asc()).all()
 
@@ -54,17 +66,45 @@ def submissions(sub_num=None, page_num=1):
 
 
 @blueprint.route('/get_job')
-def get_job():
-    sim_val = Simulation.query.filter(Simulation.has_started is False).\
-                   order_by(Simulation.simulation_id.asc()).one_or_none()
-    return jsonify({'job': sim_val})
+@blueprint.route('/get_job/<int:node_id>')
+def get_job(node_id=0):
+    sim_val = Simulation.query.filter(Simulation.has_started == False).\
+                   order_by(Simulation.simulation_id.asc()).first()
+    if sim_val:
+        sim_val.has_started = True
+        db_session.commit()
+        return_val = sim_val.serialize()
+    else:
+        return_val = None
+    return jsonify({'job': return_val})
 
 
 @blueprint.route('/add_job')
 def add_job():
-    new_sim = Simulation(0, 0)
+    test_user = User.query.filter(User.name == 'test').one()
+
+    test_sub  = Submission(test_user.id, 'echo', 'test', 1, 1)
+    db_session.add(test_sub)
+    db_session.commit()
+
+    new_sim = Simulation(test_user.id, test_sub.sub_id)
+    new_sim.input_settings_filename = ''
+    new_sim.output_filename = 'test.txt'
+    new_sim.random_seeding = numpy.random.randint(low=0, high=100000)
     db_session.add(new_sim)
     db_session.commit()
+    return ''
+
+@blueprint.route('/add_user')
+def add_user():
+    user = User.query.filter(User.name == 'test').one_or_none()
+    if not user:
+        new_user = User('test','test@gmail.com','password')
+        print('Adding user {}'.format(new_user.name))
+
+        db_session.add(new_user)
+        db_session.commit()
+    return ''
 
 @blueprint.route('/finish_job', methods=['PUT'])
 def finish_job():
@@ -72,9 +112,12 @@ def finish_job():
         abort(400)
     sim_json = request.json.get('result')
     sim = Simulation.query.get(sim_json['simulation_id'])
-    sim.start_time = sim_json['start_time']
-    sim.end_time = sim_json['end_time']
+    sim.start_time = datetime.datetime(*sim_json['start_time'][0:6])
+    sim.end_time = datetime.datetime(*sim_json['end_time'][0:6])
     sim.has_error = sim_json['has_error']
+    sim.is_complete = sim_json['is_complete']
+
     db_session.commit()
 
+    return ''
 

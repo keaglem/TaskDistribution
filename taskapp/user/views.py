@@ -19,11 +19,11 @@ def load_user(id):
 @blueprint.route('/submission')
 @login_required
 def submissions():
-    sub = db_session.query(Submission).filter(Submission.user_id == current_user.id)
-    if not sub:
-        sub = []
+    #sub = db_session.query(Submission).filter(Submission.user_id == current_user.id)
+    #if not sub:
+    #    sub = []
 
-    return render_template('user/submissions.html', submissions=sub)
+    return render_template('user/submissions.html')
 
 
 @blueprint.route('/coming_soon')

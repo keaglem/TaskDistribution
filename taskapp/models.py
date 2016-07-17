@@ -98,10 +98,27 @@ class Simulation(Base):
     is_complete = db.Column(db.Boolean, nullable=False)
     submission = db.orm.relationship('Submission', foreign_keys=[sub_id])
 
+    _serialize_field = ['simulation_id',
+                        'user_id',
+                        'start_time',
+                        'random_seeding',
+                        'output_filename',
+                        'is_complete',
+                        'has_error'
+                        ]
+
     def __init__(self, user_id, sub_id):
         self.user_id = user_id
         self.sub_id = sub_id
         self.has_started = False
+        self.has_error = False
+        self.is_complete = False
+
+    def serialize(self):
+
+        return_dict = {field_name: getattr(self, field_name) for field_name in self._serialize_field }
+        return_dict['submission'] = self.submission.serialize()
+        return return_dict
 
 
 class Submission(Base):
@@ -126,6 +143,10 @@ class Submission(Base):
                'Completed',
                'Error')
 
+    _serialize_field = ['high_level_script_name',
+                        'simulation_name'
+                        ]
+
     def __init__(self, user_id, hl_name, sim_name, hl_ver, sim_ver):
         self.user_id = user_id
         self.submission_time = datetime.now()
@@ -146,7 +167,6 @@ class Submission(Base):
     def get_name(self):
         return self.__repr__()
 
-
     def get_state(self):
         if self.has_error:
             return self._states[3]
@@ -158,3 +178,6 @@ class Submission(Base):
         elif self.start_time and self.completion_time:
             return self._states[2]
 
+    def serialize(self):
+        return_dict = {field_name: getattr(self, field_name) for field_name in self._serialize_field}
+        return return_dict

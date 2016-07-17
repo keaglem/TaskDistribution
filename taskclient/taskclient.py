@@ -5,15 +5,21 @@ import json
 import subprocess
 import datetime
 import time
-from taskapp.models import Simulation
 
 
 @click.command()
 @click.option('--num_nodes', default=1, help='Number of processing nodes to work on')
 @click.option('--home_page', default='http://localhost:5000', help='Web-site for retrieving tasks')
 def main_loop(num_nodes, home_page):
-
-    add_job(home_page)
+    """
+    Keep num_nodes busy with work from the server
+    :param num_nodes: Number of processors to run on
+    :param home_page: Home-page to contact for work
+    :return: n/a
+    """
+    add_user(home_page)
+    for _ in range(10):
+        add_job(home_page)
 
     if num_nodes > cpu_count():
         print('Asked for too many nodes: Requested {} nodes and had {}.'.format(num_nodes, cpu_count()))
@@ -42,30 +48,39 @@ def worker(home_page, node_num):
 
             if not data['job']:
                 print('No jobs to perform ... Sleeping on node: {}'.format(node_num))
-                time.sleep(1)
-            else:
-                url_put = home_page + '/api/close_job'
-                sim = data['job']
-                sim.start_time = datetime.datetime.now()
-                subprocess.call([sim.submission.high_level_script_name,
-                                 sim.submission.simulation_name,
-                                 sim.random_seeding,
-                                 ' > ' + sim.output_filename], shell=False)
-                sim.end_time = datetime.datetime.now()
-                sim.is_complete = True
-                requests.put(url_put, data={'result': sim})
+                time.sleep(2)
+                continue
 
+            url_put = home_page + '/api/finish_job'
+            sim = data['job']
+            print('Running job {}'.format(sim['simulation_id']))
+            sim['start_time'] = datetime.datetime.now().timetuple()
+            output=subprocess.check_output([sim['submission']['high_level_script_name'],
+                             sim['submission']['simulation_name'],
+                             str(sim['random_seeding']),
+                             ' > ' + sim['output_filename']], shell=False)
+            sim['end_time'] = datetime.datetime.now().timetuple()
+            sim['is_complete'] = True
+            sim['has_error'] = False
+            requests.put(url_put, json={'result': sim})
+
+            time.sleep(2)
         except (ConnectionError, ConnectionRefusedError):
             print('Failed to connect to {} on node_num {}'.format(url_get, node_num))
-            time.sleep(5)
+            time.sleep(500)
         except Exception as the_exception:
             print('Failed to connect to {} on node_num {}'.format(url_get, node_num))
             print(the_exception)
-            time.sleep(10)
+            time.sleep(1000)
 
 
 def add_job(home_page):
     url_get = home_page + '/api/add_job'
+    resp = requests.get(url_get)
+
+
+def add_user(home_page):
+    url_get = home_page + '/api/add_user'
     resp = requests.get(url_get)
 
 if __name__ == '__main__':

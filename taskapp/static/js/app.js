@@ -69,6 +69,9 @@ App = {
             s.entryTextModal.modal('show');
         });
     },
+    showSubmit: function(e) {
+        s.displayArea.load('/api/upload')
+    },
     showSubmissions: function(e) {
         s.displayArea.load('/api/submissions');
     },

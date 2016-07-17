@@ -6,7 +6,7 @@ from taskapp.settings import DevConfig, ProdConfig
 import os
 import sys
 
-if os.environ.get("CONTESTAPP_ENV") == 'prod':
+if os.environ.get("TASKAPP_ENV") == 'prod':
     app = create_app(ProdConfig)
 else:
     app = create_app(DevConfig)

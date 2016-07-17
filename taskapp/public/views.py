@@ -43,7 +43,7 @@ def signup():
             db_session.add(user)
             db_session.commit()
             login_user(user)
-            return redirect(url_for('user.devices'))
+            return redirect(url_for('user.submissions'))
     return render_template('public/signup.html', form=form)
 
 @blueprint.route('/login/forgot', methods=['GET', 'POST'])
