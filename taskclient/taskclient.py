@@ -5,7 +5,7 @@ import json
 import subprocess
 import datetime
 import time
-
+import platform
 
 @click.command()
 @click.option('--num_nodes', default=1, help='Number of processing nodes to work on')
@@ -43,7 +43,8 @@ def worker(home_page, node_num):
     while True:
         try:
             url_get = home_page + '/api/get_job'
-            resp = requests.get(url_get)
+            node_string = '{}_{}'.format(platform.node(), node_num)
+            resp = requests.get(url_get, params={'id': node_string})
             data = json.loads(resp.text)
 
             if not data['job']:

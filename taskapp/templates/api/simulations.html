@@ -19,7 +19,7 @@
         {% for sim in simulations -%}
         <tr data-sim-id={{sim.simulation_id}}>
             <td >{{ sim.user.name }}</td>
-            <td >{{ sim.submission.script_name }}</td>
+            <td >{{ sim.submission.high_level_script_name }}</td>
             <td >{{ sim.random_seeding }} </td>
             <td >{{ sim.start_time }} </td>
             <td >{{ sim.end_time }}</td>

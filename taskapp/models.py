@@ -92,12 +92,12 @@ class Simulation(Base):
     start_time = db.Column(db.DateTime, nullable=True)
     end_time = db.Column(db.DateTime, nullable=True)
     has_error = db.Column(db.Boolean, nullable=False)
-    node_id = db.Column(db.Integer, nullable=True)
+    node_id = db.Column(db.Text(), nullable=True)
     sub_id = db.Column(db.Integer, db.ForeignKey('submission.sub_id'), nullable=False)
     has_started = db.Column(db.Integer, nullable=False)
     is_complete = db.Column(db.Boolean, nullable=False)
     submission = db.orm.relationship('Submission', foreign_keys=[sub_id])
-
+    user = db.orm.relationship('User', foreign_keys=[user_id])
     _serialize_field = ['simulation_id',
                         'user_id',
                         'start_time',

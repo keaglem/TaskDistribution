@@ -30,21 +30,23 @@ def upload():
 
 
 @blueprint.route('/simulations/')
-@blueprint.route('/simulations/<sim_num>')
-@blueprint.route('/simulations/<sim_num>/<int:page_num>')
+@blueprint.route('/simulations/<int:sim_num>')
+@blueprint.route('/simulations/<int:sim_num>/<int:page_num>')
 @login_required
 def simulations(sim_num=None, page_num=1):
     """Return the simulations for a given user, optionally filtered by submission id"""
-    sim1 = Simulation.query.filter(Simulation.user_id == current_user.id).order_by(Simulation.simulation_id.desc())
+    sim = Simulation.query.filter(Simulation.user_id == current_user.id).order_by(Simulation.simulation_id.desc())
     if sim_num is not None:
-        sim = sim1.filter(Simulation.simulation_id == sim_num).order_by(Simulation.simulation_id.desc())
-        #sim = sim.paginate(page_num, current_app.config['MAX_ENTRIES_PER_PAGE'], False)
-    else:
-        sim = Simulation.query.order_by(Simulation.simulation_id.desc())
+        sim = sim.filter(Simulation.simulation_id == sim_num).order_by(Simulation.simulation_id.desc())
 
-    simulations = sim.filter(Simulation.simulation_id == sim_num).order_by(Simulation.simulation_id.asc()).all()
+    return render_template('api/simulations.html', simulations=sim)
 
-    return render_template('api/simulations.html', simlations=sim)
+@blueprint.route('/all_simulations')
+def all_simulations():
+    """Return the simulations for a given user, optionally filtered by submission id"""
+    sim = Simulation.query.order_by(Simulation.simulation_id.desc())
+
+    return render_template('api/simulations.html', simulations=sim)
 
 
 @blueprint.route('/submissions')
@@ -53,14 +55,10 @@ def simulations(sim_num=None, page_num=1):
 @login_required
 def submissions(sub_num=None, page_num=1):
     """Return the submissions for a given user, optionally filtered by submission id"""
-    sub1 = Submission.query.filter(Submission.user_id == current_user.id).order_by(Submission.sub_id.desc())
+    sub = Submission.query.filter(Submission.user_id == current_user.id).order_by(Submission.sub_id.desc())
     if sub_num is not None:
-        sub = sub1.filter(Submission.sub_id == sub_num).order_by(Submission.sub_id.desc())
+        sub = sub.filter(Submission.sub_id == sub_num).order_by(Submission.sub_id.desc())
         #sub = sub.paginate(page_num, current_app.config['MAX_ENTRIES_PER_PAGE'], False)
-    else:
-        sub = Submission.query.order_by(Submission.sub_id.desc())
-
-    all_submissions = sub1.filter(Submission.sub_id == sub_num).order_by(Submission.submission_time.asc()).all()
 
     return render_template('api/submissions.html', submissions=sub)
 
@@ -72,6 +70,7 @@ def get_job(node_id=0):
                    order_by(Simulation.simulation_id.asc()).first()
     if sim_val:
         sim_val.has_started = True
+        sim_val.node_id = request.args['id']
         db_session.commit()
         return_val = sim_val.serialize()
     else:
@@ -83,9 +82,14 @@ def get_job(node_id=0):
 def add_job():
     test_user = User.query.filter(User.name == 'test').one()
 
-    test_sub  = Submission(test_user.id, 'echo', 'test', 1, 1)
-    db_session.add(test_sub)
-    db_session.commit()
+    test_sub = Submission.query.filter(Submission.user_id == test_user.id).\
+        filter(Submission.high_level_script_name == 'echo').\
+        filter(Submission.simulation_name == 'test').first()
+
+    if not test_sub:
+        test_sub = Submission(test_user.id, 'echo', 'test', 1, 1)
+        db_session.add(test_sub)
+        db_session.commit()
 
     new_sim = Simulation(test_user.id, test_sub.sub_id)
     new_sim.input_settings_filename = ''

@@ -4,6 +4,7 @@ App = {
         displayArea: $('#display-area'),
         viewButton: $('#view-btn'),
         simButton: $('#sim-btn'),
+        allSimButton: $('#all-sim-btn'),
         submitButton: $('#submit-btn'),
         lastClicked: $('#view-btn'),
     },
@@ -18,6 +19,7 @@ App = {
         s.viewButton.click(App.handleButtonClick(App.showSubmissions));
         s.submitButton.click(App.handleButtonClick(App.showSubmit));
         s.simButton.click(App.handleButtonClick(App.showSimulations));
+        s.allSimButton.click(App.handleButtonClick(App.showAllSimulations));
         // TODO: add this functionality back for cluster display
         //s.deviceSelect.change(App.updateDisplay);
     },
@@ -76,6 +78,9 @@ App = {
     },
     showSimulations: function(e) {
         s.displayArea.load('/api/simulations')
+    },
+    showAllSimulations: function(e) {
+        s.displayArea.load('/api/all_simulations')
     },
     showSubmissions: function(e) {
         s.displayArea.load('/api/submissions');
