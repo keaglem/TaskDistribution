@@ -58,7 +58,6 @@ def submissions(sub_num=None, page_num=1):
     sub = Submission.query.filter(Submission.user_id == current_user.id).order_by(Submission.sub_id.desc())
     if sub_num is not None:
         sub = sub.filter(Submission.sub_id == sub_num).order_by(Submission.sub_id.desc())
-        #sub = sub.paginate(page_num, current_app.config['MAX_ENTRIES_PER_PAGE'], False)
 
     return render_template('api/submissions.html', submissions=sub)
 

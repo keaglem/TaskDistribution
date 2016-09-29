@@ -1,29 +1,7 @@
 {% import "layouts/macros.html" as macros %}
 
 {% if submissions and submissions.count() > 0 -%}
-{{ output_div|safe }}
-{{ script|safe }}
 <table class="table table-bordered table-striped table-hover">
-    <ul class="pager">
-        {% if submissions.has_prev -%}
-        <li class="previous">
-            <button id="submission-left-click" onclick="clickFunction({{ submissions.prev_num }})">
-                <span aria-hidden="true">&larr;</span><a href="#">Newer Submissions</a>
-            </button>
-        </li>
-        {%- else -%}
-        <li class="previous disabled">Newer Submissions</li>
-        {%- endif %}
-        {% if submissions.has_next -%}
-        <li class="next">
-            <button id="submission-right-click" onclick="clickFunction({{ submissions.next_num }})">
-                <a href="#">Older Submissions</a><span aria-hidden="true">&rarr;</span>
-            </button>
-        </li>
-        {%- else -%}
-        <li class="next disabled">Older Submissions</li>
-        {%- endif %}
-    </ul>
     <thead>
         <tr>
             <th>Username</th>
