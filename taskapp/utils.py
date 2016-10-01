@@ -21,7 +21,7 @@ def redirect_logged_in(view, **url_for_kwargs):
     def decorator(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
-            if current_user.is_authenticated():
+            if current_user.is_authenticated:
                 return redirect(url_for(view, **url_for_kwargs))
             return f(*args, **kwargs)
         return wrapper

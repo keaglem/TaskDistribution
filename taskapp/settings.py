@@ -26,7 +26,7 @@ class DevConfig(Config):
     DEBUG = True
     BOOTSTRAP_SERVE_LOCAL = True
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root@localhost/tasks'
-    SQLALCHEMY_DATABASE_URI = 'sqlite:////home/keaglem/database/tasks.db'
-
+    #SQLALCHEMY_DATABASE_URI = 'sqlite:////home/keaglem/database/tasks.db'
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///C:\\users\\matth\\database\\tasks.db'
     WTF_CSRF_ENABLED = False
     MAIL_SUPPRESS_SEND = True

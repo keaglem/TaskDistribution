@@ -8,7 +8,7 @@ import time
 import platform
 
 @click.command()
-@click.option('--num_nodes', default=1, help='Number of processing nodes to work on')
+@click.option('--num_nodes', default=2, help='Number of processing nodes to work on')
 @click.option('--home_page', default='http://localhost:5000', help='Web-site for retrieving tasks')
 def main_loop(num_nodes, home_page):
     """
@@ -56,23 +56,28 @@ def worker(home_page, node_num):
             sim = data['job']
             print('Running job {}'.format(sim['simulation_id']))
             sim['start_time'] = datetime.datetime.now().timetuple()
-            output=subprocess.check_output([sim['submission']['high_level_script_name'],
-                             sim['submission']['simulation_name'],
-                             str(sim['random_seeding']),
-                             ' > ' + sim['output_filename']], shell=False)
+            #output=subprocess.check_output([sim['submission']['high_level_script_name'],
+            #                 sim['submission']['simulation_name'],
+            #                 str(sim['random_seeding']),
+            #                 ' > ' + sim['output_filename']], shell=False)
+            time.sleep(4)
             sim['end_time'] = datetime.datetime.now().timetuple()
             sim['is_complete'] = True
             sim['has_error'] = False
             requests.put(url_put, json={'result': sim})
 
-            time.sleep(2)
+            time.sleep(1)
         except (ConnectionError, ConnectionRefusedError):
             print('Failed to connect to {} on node_num {}'.format(url_get, node_num))
-            time.sleep(500)
+            time.sleep(5)
         except Exception as the_exception:
             print('Failed to connect to {} on node_num {}'.format(url_get, node_num))
+            sim['end_time'] = datetime.datetime.now().timetuple()
+            sim['is_complete'] = False
+            sim['has_error'] = True
+            requests.put(url_put, json={'result': sim})
             print(the_exception)
-            time.sleep(1000)
+            time.sleep(2)
 
 
 def add_job(home_page):
