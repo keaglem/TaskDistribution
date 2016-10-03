@@ -43,23 +43,26 @@ def worker(home_page, node_num):
     while True:
         try:
             url_get = home_page + '/api/get_job'
+            print('URL to get: {}'.format(url_get))
             node_string = '{}_{}'.format(platform.node(), node_num)
             resp = requests.get(url_get, params={'id': node_string})
-            data = json.loads(resp.text)
 
+            data = json.loads(resp.text)
             if not data['job']:
                 print('No jobs to perform ... Sleeping on node: {}'.format(node_num))
                 time.sleep(2)
                 continue
+            else:
+                print('Data for the job: {}'.format(data))
 
             url_put = home_page + '/api/finish_job'
             sim = data['job']
             print('Running job {}'.format(sim['simulation_id']))
             sim['start_time'] = datetime.datetime.now().timetuple()
-            #output=subprocess.check_output([sim['submission']['high_level_script_name'],
-            #                 sim['submission']['simulation_name'],
-            #                 str(sim['random_seeding']),
-            #                 ' > ' + sim['output_filename']], shell=False)
+            output=subprocess.check_output([sim['submission']['high_level_script_name'],
+                             sim['submission']['simulation_name'],
+                             str(sim['random_seeding']),
+                             ' > ' + sim['output_filename']], shell=False)
             time.sleep(4)
             sim['end_time'] = datetime.datetime.now().timetuple()
             sim['is_complete'] = True
@@ -68,10 +71,10 @@ def worker(home_page, node_num):
 
             time.sleep(1)
         except (ConnectionError, ConnectionRefusedError):
-            print('Failed to connect to {} on node_num {}'.format(url_get, node_num))
+            print('Failed to connect to {} on node_num {}, sleeping.'.format(url_get, node_num))
             time.sleep(5)
         except Exception as the_exception:
-            print('Failed to connect to {} on node_num {}'.format(url_get, node_num))
+            print('Failed to connect to {} on node_num {}, reporting error'.format(url_get, node_num))
             sim['end_time'] = datetime.datetime.now().timetuple()
             sim['is_complete'] = False
             sim['has_error'] = True
