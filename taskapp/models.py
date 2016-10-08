@@ -88,7 +88,7 @@ class Simulation(Base):
 
     random_seeding = db.Column(db.Integer, nullable=False)
     input_settings_filename = db.Column(db.Text(), nullable=True)
-    output_filename = db.Column(db.Text(), nullable=True)
+    output_directory = db.Column(db.Text(), nullable=True)
     start_time = db.Column(db.DateTime, nullable=True)
     end_time = db.Column(db.DateTime, nullable=True)
     has_error = db.Column(db.Boolean, nullable=False)
@@ -99,12 +99,14 @@ class Simulation(Base):
     submission = db.orm.relationship('Submission', foreign_keys=[sub_id])
     user = db.orm.relationship('User', foreign_keys=[user_id])
     _serialize_field = ['simulation_id',
+                        'input_settings_filename',
                         'user_id',
                         'start_time',
                         'random_seeding',
-                        'output_filename',
+                        'output_directory',
                         'is_complete',
-                        'has_error'
+                        'has_error',
+                        'node_id'
                         ]
 
     def __init__(self, user_id, sub_id):

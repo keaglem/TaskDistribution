@@ -92,7 +92,7 @@ def add_job():
 
     new_sim = Simulation(test_user.id, test_sub.sub_id)
     new_sim.input_settings_filename = ''
-    new_sim.output_filename = 'test.txt'
+    new_sim.output_directory = 'test.txt'
     new_sim.random_seeding = numpy.random.randint(low=0, high=100000)
     db_session.add(new_sim)
     db_session.commit()
