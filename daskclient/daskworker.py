@@ -13,28 +13,23 @@ SCHEDULER_IP = '127.0.0.1'
 HOME_PAGE = 'http://localhost:5050'
 
 print('Hello')
-loop_worker = IOLoop.()
+loop_worker = IOLoop()
 t = Thread(target=loop_worker.start)
 t.start()
-loop_worker2 = IOLoop.current()
-t2 = Thread(target=loop_worker2.start)
-t2.start()
-nanny_process = Worker(center_ip=SCHEDULER_IP,
-                       center_port=SCHEDULER_PORT,
-                       loop=loop_worker,
-                       ncores=1)
-nanny_process.start()
 
-nanny_process2 = Worker(center_ip=SCHEDULER_IP,
-                       center_port=SCHEDULER_PORT,
-                       loop=loop_worker2,
-                       ncores=1)
-nanny_process2.start()
-print('Im here')
+NUM_WORKERS = 2
+
+nanny_process = [Worker(center_ip=SCHEDULER_IP,
+                        center_port=SCHEDULER_PORT,
+                        loop=loop_worker,
+                        ncores=2) for _ in range(NUM_WORKERS)]
+
+for nanny in nanny_process:
+    nanny.start()
+
 t.join()
-t2.join()
 
-nanny_process.stop()
-nanny_process2.stop()
+for nanny in nanny_process:
+    nanny.start()
+
 loop_worker.stop()
-loop_worker2.stop()
