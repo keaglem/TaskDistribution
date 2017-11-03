@@ -1,4 +1,4 @@
-var s,
+var s, socket,
 App = {
     settings: {
         displayArea: $('#display-area'),
@@ -11,9 +11,22 @@ App = {
 
     init: function() {
         s = this.settings;
+        socket = io.connect('http://' + document.domain + ':' + location.port + '/live_connect');
+        socket.on('connect', function() {
+            s.submitButton.append('<div class="connected">Connected to server</div>');
+            socket.emit('my event', {data: 'I\'m connected!'});
+        });
+        socket.on('disconnect', function() {
+            s.submitButton.removeClass("connected");
+        });
+        socket.on('active jobs', function(inputData) {
+            s.submitButton.find(".connected").text(inputData.num_jobs + ' remaining jobs');
+        });
+
         this.bindUIActions();
         this.updateDisplay();
     },
+
 
     bindUIActions: function() {
         s.viewButton.click(App.handleButtonClick(App.showSubmissions));
@@ -93,7 +106,6 @@ App = {
             $('tr[data-entry-id]').click(App.showEntryText);
         });
     },
-
 };
 
 

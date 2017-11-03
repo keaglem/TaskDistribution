@@ -6,11 +6,15 @@ from taskapp.settings import DevConfig, ProdConfig
 import os
 import sys
 import click
+from taskapp.app import app_runner
+from flask_socketio import SocketIO
 
 if os.environ.get("TASKAPP_ENV") == 'prod':
     app = create_app(ProdConfig)
 else:
     app = create_app(DevConfig)
+
+
 
 
 def init_db():
@@ -26,7 +30,8 @@ def init_db():
 @click.option('--host', default='127.0.0.1', help='IP address to bind webserver.  Localhost or local IP')
 @click.option('--port', default=5000, help='Port number for web-server')
 def main_function(host, port):
-    app.run(host=host, port=port)
+    app_runner.run(app=app, host=host, port=port)
+    #app.run(host=host, port=port)
 
 if __name__ == '__main__':
 

@@ -1,12 +1,13 @@
 from flask import Blueprint, render_template, url_for, flash, \
     current_app, jsonify, request, abort, redirect
-from flask.ext.login import current_user, login_required
+from flask_login import current_user, login_required
 from . import forms
 from taskapp.models import Submission, Simulation, User
 from taskapp.extensions import db_session
 import numpy
 import datetime
-
+from flask_socketio import emit
+from .. import app
 
 blueprint = Blueprint('api', __name__, url_prefix='/api', static_folder='../static')
 
@@ -74,6 +75,9 @@ def get_job(node_id=0):
         return_val = sim_val.serialize()
     else:
         return_val = None
+
+    app.app_runner.emit('active jobs', {'num_jobs': get_total_active_jobs()}, namespace='/live_connect')
+
     return jsonify({'job': return_val})
 
 
@@ -96,6 +100,7 @@ def add_job():
     new_sim.random_seeding = numpy.random.randint(low=0, high=100000)
     db_session.add(new_sim)
     db_session.commit()
+    app.app_runner.emit('active jobs', {'num_jobs': get_total_active_jobs()}, namespace='/live_connect')
     return ''
 
 @blueprint.route('/add_user')
@@ -109,6 +114,14 @@ def add_user():
         db_session.commit()
     return ''
 
+
+def get_total_active_jobs():
+
+    sim_val = Simulation.query.filter(Simulation.has_started == False). \
+        order_by(Simulation.simulation_id.asc()).count()
+
+    return sim_val
+
 @blueprint.route('/finish_job', methods=['PUT'])
 def finish_job():
     if not request.json or not 'result' in request.json:
@@ -121,6 +134,7 @@ def finish_job():
     sim.is_complete = sim_json['is_complete']
 
     db_session.commit()
+    app.app_runner.emit('active jobs', {'num_jobs': get_total_active_jobs()}, namespace='/live_connect')
 
     return ''
 
