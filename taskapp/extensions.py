@@ -2,7 +2,7 @@
 
 Each extension is initialized in the app factory located in app.py
 """
-from flask.ext.login import LoginManager
+from flask_login import LoginManager
 login_manager = LoginManager()
 
 from sqlalchemy import create_engine
@@ -16,3 +16,6 @@ db_session = scoped_session(sessionmaker(autocommit=False,
 Base = declarative_base()
 Base.query = db_session.query_property()
 
+from flask_wtf.csrf import CSRFProtect
+
+csrf = CSRFProtect()

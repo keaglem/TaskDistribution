@@ -6,11 +6,11 @@
         <tr>
             <th>Username</th>
             <th>Script Name</th>
-            <th>Seed Number</th>
+            <th>Has Started</th>
             <th>Start Time</th>
             <th>End Time</th>
-            <th>Node Id
-            <th>Started</th>
+            <th>Has Error</th>
+            <th>Node Id</th>
         </tr>
     </thead>
     <tbody class="list">
@@ -18,11 +18,12 @@
         <tr data-sim-id={{sim.simulation_id}}>
             <td >{{ sim.user.name }}</td>
             <td >{{ sim.submission.high_level_script_name }}</td>
-            <td >{{ sim.random_seeding }} </td>
+            <td >{{ sim.has_started }}</td>
             <td >{{ sim.start_time }} </td>
             <td >{{ sim.end_time }}</td>
+            <td >{{ sim.has_error }}</td>
             <td >{{ sim.node_id }}</td>
-            <td >{{ sim.has_started }}</td>
+
         </tr>
         {%- endfor %}
     </tbody>
