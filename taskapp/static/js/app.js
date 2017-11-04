@@ -49,13 +49,6 @@ App = {
             return base;
         return base + '/' + id;
     },
-    getEntryURI: function(id) {
-        return App.getValidURI('/api/entries',id);
-    },
-    getAddEntryURI: function(id) {
-        return App.getValidURI('/nest/addentry',id);
-    },
-
 
     loadNoCache: function(elem, url, success) {
         $.ajax(url, {
@@ -66,10 +59,6 @@ App = {
                 success();
             }
         });
-    },
-
-    getActiveDeviceId: function() {
-        return s.deviceSelect.val();
     },
 
     updateDisplay: function() {
@@ -84,33 +73,28 @@ App = {
             return displayCallback();
         }
     },
-
-    showEntryText: function(e) {
-        id = $(this).data('entryId');
-        App.loadNoCache(s.entryTextModalBody, '/api/entries/text/' + id, function() {
-            s.entryTextModal.modal('show');
-        });
+    showSubmissionText: function(e) {
+        id = $(this).data('subId');
+        s.displayArea.load(App.getValidURI('/api/simulations',id))
     },
     showSubmit: function(e) {
         s.displayArea.load('/api/upload')
     },
     showSimulations: function(e) {
         s.displayArea.load('/api/simulations')
+
     },
     showAllSimulations: function(e) {
         s.displayArea.load('/api/all_simulations')
     },
     showSubmissions: function(e) {
         s.displayArea.load('/api/submissions');
+        App.loadNoCache(s.displayArea, '/api/submissions', function (){
+            $('tr[data-sub-id]').click(App.showSubmissionText)
+        })
     },
-    showThermostat: function(e) {
-        s.displayArea.load(App.getAddEntryURI(App.getActiveDeviceId()));
-    },
-    showEntries: function(e) {
-        App.loadNoCache(s.displayArea, App.getEntryURI(App.getActiveDeviceId()), function() {
-            $('tr[data-entry-id]').click(App.showEntryText);
-        });
-    },
+
+
 };
 
 

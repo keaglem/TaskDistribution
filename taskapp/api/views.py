@@ -15,6 +15,10 @@ from .. import app
 blueprint = Blueprint('api', __name__, url_prefix='/api', static_folder='../static')
 
 
+def send_active_jobs():
+    app.app_runner.emit('active jobs', {'num_jobs': get_total_active_jobs()}, namespace='/live_connect')
+
+
 @blueprint.route('/upload', methods=['GET', 'POST'])
 @login_required
 def upload():
@@ -32,20 +36,31 @@ def upload():
                              form.script_version.data,
                              form.simulation_version.data)
         db_session.commit()
+
+        # Add new job -- This will be replaced by adding jobs based on input file
+        new_sim = Simulation(current_user.id, new_sub.sub_id)
+        new_sim.input_settings_filename = ''
+        new_sim.output_directory = 'test.txt'
+        new_sim.random_seeding = numpy.random.randint(low=0, high=100000)
+        db_session.add(new_sim)
+        db_session.commit()
+        send_active_jobs()
         #flash('Submission id {} added.'.format(new_sub.sub_id))
         return redirect(url_for('user.submissions'))
     return render_template('api/upload.html', form=form)
 
 
 @blueprint.route('/simulations/')
-@blueprint.route('/simulations/<int:sim_num>')
-@blueprint.route('/simulations/<int:sim_num>/<int:page_num>')
+@blueprint.route('/simulations/<int:sub_num>')
+@blueprint.route('/simulations/<int:sub_num>/<int:page_num>')
 @login_required
-def simulations(sim_num=None, page_num=1):
+def simulations(sub_num=None, page_num=1):
     """Return the simulations for a given user, optionally filtered by submission id"""
     sim = Simulation.query.filter(Simulation.user_id == current_user.id).order_by(Simulation.simulation_id.desc())
-    if sim_num is not None:
-        sim = sim.filter(Simulation.simulation_id == sim_num).order_by(Simulation.simulation_id.desc())
+    if sub_num is not None:
+        sim = sim.filter(Simulation.sub_id == sub_num).order_by(Simulation.simulation_id.desc())
+
+    send_active_jobs()
 
     return render_template('api/simulations.html', simulations=sim)
 
@@ -53,6 +68,8 @@ def simulations(sim_num=None, page_num=1):
 def all_simulations():
     """Return the simulations for a given user, optionally filtered by submission id"""
     sim = Simulation.query.order_by(Simulation.simulation_id.desc())
+
+    send_active_jobs()
 
     return render_template('api/simulations.html', simulations=sim)
 
@@ -75,6 +92,7 @@ def submissions(sub_num=None, page_num=1):
     if sub_num is not None:
         sub = sub.filter(Submission.sub_id == sub_num).order_by(Submission.sub_id.desc())
 
+    send_active_jobs()
     return render_template('api/submissions.html', submissions=sub)
 
 
@@ -91,9 +109,10 @@ def get_job(node_id=0):
     else:
         return_val = None
 
-    app.app_runner.emit('active jobs', {'num_jobs': get_total_active_jobs()}, namespace='/live_connect')
-
+    send_active_jobs()
     return jsonify({'job': return_val})
+
+
 
 
 @blueprint.route('/add_job')
@@ -115,7 +134,7 @@ def add_job():
     new_sim.random_seeding = numpy.random.randint(low=0, high=100000)
     db_session.add(new_sim)
     db_session.commit()
-    app.app_runner.emit('active jobs', {'num_jobs': get_total_active_jobs()}, namespace='/live_connect')
+    send_active_jobs()
     return ''
 
 @blueprint.route('/add_user')
@@ -132,8 +151,7 @@ def add_user():
 
 def get_total_active_jobs():
 
-    sim_val = Simulation.query.filter(Simulation.has_started == False). \
-        order_by(Simulation.simulation_id.asc()).count()
+    sim_val = Simulation.query.filter(Simulation.has_started == False).count()
 
     return sim_val
 
@@ -149,7 +167,6 @@ def finish_job():
     sim.is_complete = sim_json['is_complete']
 
     db_session.commit()
-    app.app_runner.emit('active jobs', {'num_jobs': get_total_active_jobs()}, namespace='/live_connect')
-
+    send_active_jobs()
     return ''
 
