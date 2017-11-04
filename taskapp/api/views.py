@@ -1,6 +1,9 @@
 from flask import Blueprint, render_template, url_for, flash, \
     current_app, jsonify, request, abort, redirect
-from flask_login import current_user, login_required
+try:
+    from flask_login import current_user, login_required
+except:
+    from flask.ext.login import current_user, login_required
 from . import forms
 from taskapp.models import Submission, Simulation, User
 from taskapp.extensions import db_session
@@ -24,6 +27,10 @@ def upload():
                              form.script_version.data,
                              form.simulation_version.data)
         db_session.add(new_sub)
+        print(form.script_name.data,
+                             form.simulation_name.data,
+                             form.script_version.data,
+                             form.simulation_version.data)
         db_session.commit()
         #flash('Submission id {} added.'.format(new_sub.sub_id))
         return redirect(url_for('user.submissions'))
@@ -48,6 +55,14 @@ def all_simulations():
     sim = Simulation.query.order_by(Simulation.simulation_id.desc())
 
     return render_template('api/simulations.html', simulations=sim)
+
+
+# def stream_template(template_name, **context):
+#     app.update_template_context(context)
+#     t = app.jinja_env.get_template(template_name)
+#     rv = t.stream(context)
+#     rv.enable_buffering(5)
+#     return rv
 
 
 @blueprint.route('/submissions')

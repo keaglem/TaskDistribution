@@ -2,7 +2,10 @@
 import functools
 
 from flask import redirect, url_for, flash
-from flask.ext.login import current_user
+try:
+    from flask_login import current_user
+except:
+    from flask.ext.login import current_user
 
 
 def admin_required(f):

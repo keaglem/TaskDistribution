@@ -3,7 +3,10 @@ import os
 
 import itsdangerous
 from flask import current_app
-from flask.ext.login import UserMixin
+try:
+    from flask_login import UserMixin
+except:
+    from flask.ext.login import UserMixin
 from sqlalchemy import or_
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
@@ -133,8 +136,8 @@ class Submission(Base):
     submission_time = db.Column(db.DateTime, nullable=False)
     high_level_script_name = db.Column(db.Text(), nullable=False)
     simulation_name = db.Column(db.Text(), nullable=False)
-    high_level_script_version = db.Column(db.Integer, nullable=False)
-    simulation_version = db.Column(db.Integer, nullable=False)
+    high_level_script_version = db.Column(db.Float, nullable=False)
+    simulation_version = db.Column(db.Float, nullable=False)
     start_time = db.Column(db.DateTime, nullable=True)
     completion_time = db.Column(db.DateTime, nullable=True)
     has_error = db.Column(db.Boolean)

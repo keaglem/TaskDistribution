@@ -1,8 +1,10 @@
 from sqlalchemy.sql import func
 from sqlalchemy.orm.exc import NoResultFound
 from flask import Blueprint, request, redirect, url_for, current_app, render_template, flash
-from flask.ext.login import current_user, login_required
-
+try:
+    from flask_login import current_user, login_required
+except:
+    from flask.ext.login import current_user, login_required
 from ..models import User, Submission, Simulation
 from ..extensions import login_manager, db_session
 from . import forms

@@ -7,20 +7,25 @@ App = {
         allSimButton: $('#all-sim-btn'),
         submitButton: $('#submit-btn'),
         lastClicked: $('#view-btn'),
+        topNavBar: $('#top-nav-bar'),
+        connectedStatus: $('#connected-status'),
+        jobStatus: $('#job-status')
     },
 
     init: function() {
         s = this.settings;
         socket = io.connect('http://' + document.domain + ':' + location.port + '/live_connect');
         socket.on('connect', function() {
-            s.submitButton.append('<div class="connected">Connected to server</div>');
+            s.jobStatus.text('0 remaining jobs');
+            s.connectedStatus.text('Connected');
             socket.emit('my event', {data: 'I\'m connected!'});
         });
         socket.on('disconnect', function() {
-            s.submitButton.removeClass("connected");
+            s.jobStatus.text('');
+            s.connectedStatus.text('Not Connected');
         });
         socket.on('active jobs', function(inputData) {
-            s.submitButton.find(".connected").text(inputData.num_jobs + ' remaining jobs');
+            s.jobStatus.text(inputData.num_jobs + ' remaining jobs');
         });
 
         this.bindUIActions();

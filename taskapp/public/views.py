@@ -1,7 +1,9 @@
 import itsdangerous
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask.ext.login import current_user, login_user, logout_user
-
+try:
+    from flask_login import current_user, login_user, logout_user
+except:
+    from flask.ext.login import current_user, login_user, logout_user
 from . import forms
 from taskapp.models import User, Submission, Simulation
 from taskapp.extensions import login_manager, db_session
