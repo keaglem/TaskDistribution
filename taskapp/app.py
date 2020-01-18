@@ -15,7 +15,7 @@ def handle_socket_connect():
     print('Connected to socket')
 
 @app_runner.on('disconnect','/live_connect')
-def handle_socket_connect():
+def handle_socket_disconnect():
     print('Disconnected to socket')
 
 @app_runner.on('my event')
