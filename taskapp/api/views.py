@@ -113,7 +113,10 @@ def get_job(node_id=0):
     return jsonify({'job': return_val})
 
 
-
+@blueprint.route('/all_jobs')
+def all_jobs(node_id=0):
+    sim_val = Simulation.query.all()
+    return jsonify([sim.serialize() for sim in sim_val])
 
 @blueprint.route('/add_job')
 def add_job():
