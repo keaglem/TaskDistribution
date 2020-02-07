@@ -10,8 +10,6 @@ class Config(object):
     MAIL_DEFAULT_SENDER = 'admin@contest.com' # TODO: change me
     MAIL_SUPPRESS_SEND = False # Set to true if you don't want to use emails
     MAX_ENTRIES_PER_PAGE = 10
-    DATA_API_PORT = 6000
-    DATA_API_URL = f'http://127.0.0.1:{DATA_API_PORT}/api'
 
 
 class ProdConfig(Config):
